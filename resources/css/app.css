@@ -1,0 +1,55 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+body{
+    @apply bg-gray-200;
+}
+.navbar{
+
+    @apply justify-between items-center bg-transparent shadow-md px-7 py-5 text-center mb-12;
+}
+.aside{
+    @apply items-center justify-center;
+}
+.navbar a{
+    @apply text-black font-bold text-2xl px-7 py-4 hover:underline;
+}
+.container{
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-black font-serif flex-1 overflow-y-auto; 
+}
+
+.card{
+    @apply p-4 border rounded shadow mb-6 mt-20;
+}
+.card a{
+    @apply text-shadow-black hover:text-green-600 text-lg font-semibold hover:underline ml-70 border-r-8 bg-gray-300 px-4 py-4 rounded;
+} 
+.card h1{
+   @apply text-xl font-bold mb-4 mt-4;
+}
+.div-card{
+    @apply flex justify-between items-center;
+}
+.sidebar h2{
+    @apply text-xl font-bold mb-4 text-center text-black;
+}
+
+.sidebar {
+    @apply bg-white p-6 shadow-xl flex flex-col w-full max-w-xs min-h-screen space-y-4 flex-shrink-0 top-0 fixed left-0 right-0 bottom-0 overflow-y-auto;
+}
+
+.sidebar a {
+    @apply text-gray-700 text-lg font-medium py-2 px-4 rounded hover:bg-gray-200 transition-all duration-200 w-full text-left;
+}
+.logout-btn{
+     @apply text-gray-700 text-lg font-medium py-2 px-4 rounded hover:bg-gray-200 transition-all duration-200 w-full text-left;
+}
+
