@@ -130,7 +130,8 @@
       <button id="quoteClose" aria-label="Close modal" class="text-gray-400 hover:text-gray-800 text-2xl font-bold leading-none">×</button>
     </div>
 
-    <form id="quoteForm" class="p-6 space-y-4">
+    <form id="quoteForm" method="POST" action="{{ route('booking.storeRequest') }} " class="p-6 space-y-4">
+      @csrf
       <input type="hidden" id="quoteProductId" name="product_id" />
 
       <!-- Customer Info -->
@@ -207,6 +208,9 @@
 
           <!-- Number of Units -->
           <div class="col-span-2">
+            <input type="hidden" id="quoteProductId" name="product_id" />
+            <input type="hidden" id="service_product_price_input" name="service_product_price" />
+
             <label for="unit_quantity" class="block text-sm font-medium text-gray-700 mt-2">How many units? *</label>
             <input type="number" id="unit_quantity" name="unit_quantity" min="1" required
                    class="mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
@@ -287,36 +291,39 @@ document.addEventListener('DOMContentLoaded', () => {
   const serviceBrand = document.getElementById('service_product_brand');
   const servicePrice = document.getElementById('service_product_price');
   const serviceDesc = document.getElementById('service_product_description');
+  const priceInput = document.getElementById('service_product_price_input');
+  const productIdInput = document.getElementById('quoteProductId');
 
   const showModal = (modal, content) => {
     modal.classList.remove('hidden');
-    setTimeout(() => {
-      content.classList.remove('opacity-0', 'scale-95');
-    }, 10);
+    setTimeout(() => content.classList.remove('opacity-0', 'scale-95'), 10);
   };
 
   const hideModal = (modal, content) => {
     content.classList.add('opacity-0', 'scale-95');
-    setTimeout(() => {
-      modal.classList.add('hidden');
-    }, 200);
+    setTimeout(() => modal.classList.add('hidden'), 200);
   };
 
+  // === Open Quick View ===
   document.querySelectorAll('.js-quickview').forEach(btn => {
     btn.addEventListener('click', () => {
       const unit = JSON.parse(btn.dataset.unit);
+
       document.getElementById('modalTitle').textContent = `${unit.brand} ${unit.model}`;
       document.getElementById('modalImage').src = unit.image ? `/storage/${unit.image}` : '/images/aircon-placeholder.png';
       document.getElementById('modalCategory').textContent = `${unit.category ?? ''} • ${unit.capacity ?? ''} BTU`;
       document.getElementById('modalPrice').textContent = unit.base_price ? `₱${Number(unit.base_price).toLocaleString()}` : 'Price on request';
       document.getElementById('modalDescription').textContent = unit.description ?? '—';
-      document.getElementById('quoteProductId').value = unit.id;
 
-      // Fill in service info for quote modal
-      serviceName.textContent = `${unit.brand} ${unit.model}`;
+      // Fill product info for quote form
+      serviceName.textContent = unit.name ?? `${unit.brand} ${unit.model}`;
       serviceBrand.textContent = unit.brand ?? '—';
       servicePrice.textContent = unit.base_price ? `₱${Number(unit.base_price).toLocaleString()}` : '—';
       serviceDesc.textContent = unit.description ?? '—';
+
+      // Fill hidden inputs
+      productIdInput.value = unit.aircon_type_id;
+      priceInput.value = unit.base_price ?? 0;
 
       showModal(unitModal, unitContent);
     });
@@ -330,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('quoteClose').addEventListener('click', () => hideModal(quoteModal, quoteContent));
   document.getElementById('quoteCancel').addEventListener('click', () => hideModal(quoteModal, quoteContent));
 
-  // Add address logic
+  // === Add Address Logic ===
   const addAddressBtn = document.getElementById('addAddressBtnModal');
   const addressContainer = document.getElementById('addAddressesContainer');
   const addressTemplate = document.getElementById('addAddressTemplate').innerHTML;
@@ -351,14 +358,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.add-address-number').forEach((el, idx) => el.textContent = idx + 1);
   };
 
-  // Form submit (demo)
-  quoteForm.addEventListener('submit', e => {
-    e.preventDefault();
-    alert('Quote request submitted successfully!');
-    hideModal(quoteModal, quoteContent);
-  });
+  // ✅ Remove e.preventDefault to allow actual form submission
 });
 </script>
+
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
   lucide.createIcons();

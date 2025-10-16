@@ -34,6 +34,7 @@ Route::controller(ApplicantController::class)->group(function () {
 
 Route::controller(BookingController::class)->group(function () {
     Route::get('/Booking', 'index')->name('show.bookingindex');
+    Route::post('/booking/store-request', 'storeRequest')->name('booking.storeRequest');
 });
 
 Route::controller(ResumeController::class)->group(function(){
