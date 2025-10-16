@@ -1,12 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\AirconType;
 use Illuminate\Http\Request;
 
-class BookingController extends Controller
+class AirconTypeController extends Controller
 {
-      public function index(Request $request)
+    /**
+     * Show all Aircon Types (with sorting options)
+     */
+    public function index(Request $request)
     {
         // Default sort: by name ascending
         $sortBy = $request->get('sort', 'name');

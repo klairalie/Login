@@ -44,4 +44,8 @@ Route::delete('/resumeupload/{resume_format_id}', 'delete')->name('resume.delete
 Route::get('/resumeupload/{resume_format_id}/details', 'details')->name('resume.details');
 Route::get('/resumeupload/download', 'download')->name('resume.download');
 });
-
+Route::get('/test-session-driver', function () {
+    return session()->getHandler() instanceof App\Session\HybridSessionHandler
+        ? 'Hybrid driver works!'
+        : 'Driver not loaded';
+});

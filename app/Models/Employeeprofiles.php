@@ -39,6 +39,10 @@ class Employeeprofiles extends Model
         return $this->hasMany(Expenses::class);
     }
 
+    public function jobstatuses()
+    {
+        return $this->hasMany(Jobstatus::class);
+    }
 
      public function leaveovertimerequests()
     {
@@ -55,6 +59,10 @@ class Employeeprofiles extends Model
         return $this->hasMany(Archiveprofile::class);
     }
 
+    public function deductions()
+    {
+        return $this->hasMany(Deduction::class, 'employeeprofiles_id', 'employeeprofiles_id');
+    }
     public function routeNotificationForMail($notification)
     {
         return $this->email;
@@ -75,5 +83,9 @@ public function activitylogs(){
     return $this->hasMany(ActivityLog::class, 'employeeprofiles_id');
 }
 
+public function salary()
+{
+    return $this->hasOne(Salaries::class, 'position', 'position');
+}
 
 }
