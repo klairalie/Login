@@ -77,7 +77,7 @@ class BookingController extends Controller
             'unit_price' => $unitPrice,
             'line_total' => $unitPrice * $quantity,
             'status' => 'Requested',
-        ]);
+        ]); 
     });
 
     return redirect()->back()->with('success', 'Quote request submitted successfully!');
