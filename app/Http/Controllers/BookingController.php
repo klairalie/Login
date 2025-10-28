@@ -33,7 +33,7 @@ class BookingController extends Controller
 {
     DB::transaction(function() use ($request) {
 
-        // 1️⃣ Save Customer Information
+        // 1️⃣ Save Customer Informationn
         $customer = Customer::create([
             'full_name' => $request->input('full_name'),
             'email' => $request->input('email'),
@@ -60,7 +60,7 @@ class BookingController extends Controller
         // 3️⃣ Create a Service Request Header
        $serviceRequest = ServiceRequest::create([
     'customer_id' => $customer->customer_id,
-    'service_date' => Carbon::now(), // ✅ Fix here
+
     'order_status' => 'Requested',
     
 ]);

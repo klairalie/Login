@@ -8,10 +8,11 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ResumeController;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Login;
+use App\Http\Controllers\ScanController;
 Route::get('/', function () {
     return view('index');
 });
-
+Route::post('/scan-file', [ScanController::class, 'scan'])->name('scan.file');
 Route::get('/login', [LoginRegController::class, 'showLogin'])->name('show.login');
 Route::get('/register', [LoginRegController::class, 'showRegister'])->name('show.register');
 Route::post('/login', [LoginRegController::class, 'login'])->name('login');
@@ -50,3 +51,10 @@ Route::get('/test-session-driver', function () {
         ? 'Hybrid driver works!'
         : 'Driver not loaded';
 });
+
+// web.php
+
+Route::post('/forgot-password', [LoginRegController::class, 'sendResetOTP'])->name('forgot.password');
+Route::post('/forgot-verify', [LoginRegController::class, 'verifyResetOTP'])->name('forgot.verify.ajax');
+
+

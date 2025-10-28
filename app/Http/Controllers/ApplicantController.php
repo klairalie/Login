@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Applicant;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class ApplicantController extends Controller
 {
@@ -13,8 +14,9 @@ class ApplicantController extends Controller
         return view('Applicants.Applicationform');
     }
 
-     public function store(Request $request)
+public function store(Request $request)
 {
+    // ✅ Validate request
     $validated = $request->validate([
         'first_name'        => 'required|string|max:100',
         'last_name'         => 'required|string|max:100',
@@ -30,32 +32,63 @@ class ApplicantController extends Controller
         'skills'            => 'required|string',
         'achievements'      => 'required|string',
         'references'        => 'required|string',
-        'good_moral_file'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        'coe_file'          => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-        'resume_file'       => 'required|file|mimes:jpg,jpeg,png,doc,docx|max:5120', // ✅ allow docs & larger size
-]);
+        'good_moral_file'   => 'required|mimetypes:image/jpeg,image/png,image/jpg|max:5120',
+        'coe_file'          => 'required|mimetypes:image/jpeg,image/png,image/jpg|max:5120',
+        'resume_file'       => 'required|mimetypes:application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:5120',
+    ]);
 
-// Handle uploads
-if ($request->hasFile('good_moral_file')) {
-    $validated['good_moral_file'] = $request->file('good_moral_file')
-        ->store('applicants_files', 'public');
-}
+    // 🧩 List of files to scan
+    $filesToScan = ['good_moral_file', 'coe_file', 'resume_file'];
 
-if ($request->hasFile('coe_file')) {
-    $validated['coe_file'] = $request->file('coe_file')
-        ->store('applicants_files', 'public');
-}
+    foreach ($filesToScan as $fileKey) {
+        if ($request->hasFile($fileKey)) {
+            $path = $request->file($fileKey)->getRealPath();
 
-if ($request->hasFile('resume_file')) {
-    $validated['resume_file'] = $request->file('resume_file')
-        ->store('applicants_files', 'public');
-}
+            // ⚠️ Scan file before storing (ClamAV)
+            if (!$this->scanWithClamAV($path)) {
+                return back()->with('error', ucfirst(str_replace('_', ' ', $fileKey)) . ' appears to be infected and was not uploaded.');
+            }
+        }
+    }
 
+    // ✅ Store files and replace in validated array
+    foreach ($filesToScan as $fileKey) {
+        if ($request->hasFile($fileKey)) {
+            $validated[$fileKey] = $request->file($fileKey)->store('applicants_files', 'public');
+        }
+    }
 
+    // ✅ Create applicant record
     Applicant::create($validated);
 
-    return redirect()->route('show.applicationform')->with('success', 'Application submitted successfully!');
+    return redirect()->route('show.applicationform')->with('success', 'Application submitted successfully and files are virus-free!');
 }
+
+
+// 🔍 Helper method for scanning
+private function scanWithClamAV($filePath)
+{
+    // Path to your ClamAV scanner
+    $clamPath = 'D:\\ClamAV\\clamdscan.exe';
+
+    // Run scan
+    $command = "$clamPath --fdpass " . escapeshellarg($filePath);
+    exec($command, $output, $returnCode);
+
+    // 0 = clean, 1 = infected, 2 = error
+    if ($returnCode === 0) {
+        return true;
+    }
+
+    Log::warning('ClamAV detected a threat', [
+        'file' => $filePath,
+        'output' => $output,
+        'returnCode' => $returnCode,
+    ]);
+
+    return false;
+}
+
 
 public function validateField(Request $request)
 {

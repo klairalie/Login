@@ -51,9 +51,9 @@
     @forelse($aircons as $unit)
       <article class="bg-white rounded-2xl p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 group animate-fadeIn">
         <div class="relative h-48 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden">
-          <img src="{{ $unit->image ? asset('storage/' . $unit->image) : asset('images/aircon-placeholder.png') }}"
-               alt="{{ $unit->brand }} {{ $unit->model }}"
-               class="h-44 object-contain transition-transform duration-300 group-hover:scale-105">
+         <img src="{{ asset($unit->image_path) }}" alt="Aircon Image"
+     class="h-44 w-auto object-contain transition-transform duration-300 group-hover:scale-105 rounded-lg shadow">
+
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition"></div>
         </div>
 
@@ -97,8 +97,8 @@
     </div>
 
     <div class="p-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="col-span-1 flex justify-center items-center bg-gray-50 rounded-xl">
-        <img id="modalImage" src="" alt="" class="h-56 object-contain">
+      <div class="col-span-1 flex justify-center items-center rounded-xl p-4">
+        <img id="modalImage" src="{{ $unit->image_path }}" alt="Aircon Image" class="h-60 object-contain">
       </div>
 
       <div class="md:col-span-2">
@@ -107,15 +107,12 @@
         <ul id="modalSpecs" class="text-sm text-gray-700 space-y-1 mb-4"></ul>
         <p id="modalDescription" class="text-sm text-gray-600 mb-6"></p>
 
-        <div class="flex gap-3">
+        <div class="flex gap-2">
           <button id="openQuoteForm" 
-                  class="flex-1 px-4 py-2 rounded-md bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition text-center">
+                  class="flex-1 px-2 py-2 bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition text-center">
              Request Quote
           </button>
-          <a id="modalProduct" href="#" 
-             class="flex-1 px-4 py-2 rounded-md border text-sm hover:bg-gray-50 transition text-center">
-             View Product
-          </a>
+         
         </div>
       </div>
     </div>
@@ -310,7 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const unit = JSON.parse(btn.dataset.unit);
 
       document.getElementById('modalTitle').textContent = `${unit.brand} ${unit.model}`;
-      document.getElementById('modalImage').src = unit.image ? `/storage/${unit.image}` : '/images/aircon-placeholder.png';
+      document.getElementById('modalImage').src = unit.image_path
+  ? unit.image_path
+  : '/images/aircon-placeholder.png';
+
       document.getElementById('modalCategory').textContent = `${unit.category ?? ''} • ${unit.capacity ?? ''} BTU`;
       document.getElementById('modalPrice').textContent = unit.base_price ? `₱${Number(unit.base_price).toLocaleString()}` : 'Price on request';
       document.getElementById('modalDescription').textContent = unit.description ?? '—';

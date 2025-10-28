@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use App\Session\HybridSessionHandler;
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +21,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        //  // Force HTTPS
+        // URL::forceScheme('http');
+
           $handler = new HybridSessionHandler('central_sessions');
     session_set_save_handler($handler, true);
     session_start();

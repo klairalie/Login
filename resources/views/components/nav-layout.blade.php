@@ -11,16 +11,17 @@
 <body class="bg-white text-gray-800">
 
   <!-- Navbar -->
-  <nav class="w-full fixed top-0 left-0 z-50 backdrop-blur-md bg-gradient-to-r from-orange-200 via-white to-gray-300 backdrop-blur-md shadow-sm py-3.5 px-6 flex items-center justify-between">
+  <nav class="w-full fixed top-0 left-0 z-50 backdrop-blur-md bg-[#2C2C2C] backdrop-blur-md shadow-sm py-3.5 px-6 flex items-center justify-between">
     <!-- Logo -->
+    <a href="/">
     <div class="flex items-left ml-0">
       <img src="{{ asset('storage/3Rs_logo.png') }}" alt="3RS Logo" class="h-10 sm:h-12 w-auto items-left ml-0">
     </div>
-
+</a>
     <!-- Nav Links (desktop) -->
     <div class="hidden md:flex items-center space-x-6 text-base sm:text-lg font-medium">
-      <a href="/" class="text-gray-700 hover:text-sky-700 hover:underline transition">Home</a>
-      <a href="{{ route('show.login') }}" class="text-gray-700 hover:text-gray-900 hover:underline transition">Login</a>
+      <a href="/" class="text-white hover:underline transition">Home</a>
+      {{-- <a href="{{ route('show.login') }}" class="text-white hover:underline transition">Login</a> --}}
     </div>
 
     <!-- Mobile Menu Button -->

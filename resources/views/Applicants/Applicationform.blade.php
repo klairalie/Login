@@ -1,6 +1,5 @@
 <x-nav-layout>
 
-   
     {{-- Validation Errors (for non-JS fallback) --}}
     @if ($errors->any())
         <script>
@@ -27,7 +26,7 @@
     @endif
 
     <!-- Applicant Registration Form -->
-    <section class="relative pt-32 pb-20 bg-gradient-to-r from-gray-300 to-orange-200 backdrop-blur-md">
+    <section class="relative pt-32 pb-20 backdrop-blur-md">
 
         <!-- Instructions -->
         <div class="instructions max-w-4xl mx-auto px-6 mb-10">
@@ -53,17 +52,16 @@
                     <!-- Resume Upload -->
                     <div>
                         <label class="input-label text-black text-lg ml-2 mb-2">Upload Resume here</label>
-                        <input type="file" id="resumeFile" name="resume_file" accept=".doc,.docx,.jpg,.jpeg,.png" class="validate-input file-input">
-                        <p class="error-message text-red-600 hidden"></p>
+                        <input type="file" id="resumeFile" name="resume_file" accept=".doc,.docx" class="validate-input file-input">
+                        <p id="fileError" class="error-message text-red-600 hidden"></p>
 
                         <!-- Spinner -->
-                        <div id="resumeSpinner" class="hidden mt-2 flex items-center text-amber-700">
-                            <svg class="animate-spin h-5 w-5 mr-2 text-amber-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                            </svg>
-                            <span id="resumeSpinnerText">Scanning resume...</span>
-                        </div>
+                       <!-- Spinner / Status -->
+    <div id="resumeSpinner" class="hidden mt-3 flex items-center gap-2 text-amber-700">
+        <!-- Lucide icon will be placed here -->
+        <i data-lucide="scan" class="animate-spin w-5 h-5"></i>
+        <span id="resumeSpinnerText">Scanning file for viruses... 0%</span>
+    </div>
                     </div>
 
                     <!-- Personal Info -->
@@ -139,11 +137,11 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label class="input-label">Good Moral Certificate</label>
-                                <input type="file" name="good_moral_file" class="validate-input file-input">
+                                <input type="file" name="good_moral_file" accept=".jpg,.jpeg,.png" class="validate-input file-input">
                             </div>
                             <div>
                                 <label class="input-label">Certificate of Employment (COE)</label>
-                                <input type="file" name="coe_file" class="validate-input file-input">
+                                <input type="file" name="coe_file" accept=".jpg,.jpeg,.png" class="validate-input file-input">
                             </div>
                         </div>
                     </div>
@@ -176,14 +174,13 @@
   </div>
 </div>
 
-
-
-   <script>
+{{-- ✅ Real-time Validation --}}
+<script>
 function runValidation(input) {
     const field = input.name;
     const value = input.value;
 
-    if (!value) return; // skip empty fields
+    if (!value) return; 
 
     fetch("{{ route('validate.applicant') }}", { 
         method: "POST",
@@ -203,7 +200,7 @@ function runValidation(input) {
         }
 
         if (data.valid) {
-            errorEl.textContent = "✔ Looks good";
+            errorEl.textContent = "Valid";
             errorEl.classList.add("text-green-600");
             errorEl.classList.remove("text-red-600");
         } else {
@@ -215,50 +212,60 @@ function runValidation(input) {
     .catch(err => console.error("Validation error:", err));
 }
 
-// Attach validation on blur & typing
 document.querySelectorAll('.validate-input').forEach(input => {
     input.addEventListener('blur', () => runValidation(input));
     input.addEventListener('input', () => runValidation(input));
 });
+</script>
 
-// Also listen for OCR autofill: trigger validation whenever a field changes value
-const observer = new MutationObserver(() => {
-    document.querySelectorAll('.validate-input').forEach(input => {
-        if (input.value && !input.dataset.validated) {
-            runValidation(input);
-            input.dataset.validated = "true"; // prevent infinite loop
+{{-- ✅ ClamAV + OCR Resume Scan --}}
+<script>
+document.getElementById("resumeFile").addEventListener("change", async function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const spinner = document.getElementById("resumeSpinner");
+    const spinnerText = document.getElementById("resumeSpinnerText");
+    const errorEl = document.getElementById("fileError");
+
+    errorEl.classList.add("hidden");
+    spinner.classList.remove("hidden");
+    spinnerText.textContent = "🔍 Scanning file for viruses...";
+
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const response = await fetch("{{ route('scan.file') }}", {
+            method: "POST",
+            headers: { "X-CSRF-TOKEN": "{{ csrf_token() }}" },
+            body: formData,
+        });
+
+        const data = await response.json();
+
+        if (!data.clean) {
+            spinner.classList.add("hidden");
+            errorEl.textContent = "❌ Virus detected in file. Please upload a clean one.";
+            errorEl.classList.remove("hidden");
+            this.value = "";
+            return;
         }
-    });
-});
 
-// Watch for OCR changes in the form
-observer.observe(document.getElementById('applicantForm'), {
-    childList: false,
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['value']
-});
-
-document.getElementById('applicantForm').addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (confirm("Are you sure you want to submit it now?")) {
-        if (confirm("Are you sure you are providing reliable information?")) {
-            this.submit();
-        } else {
-            alert("❗ Please review your application carefully before submitting.");
-        }
-    } else {
-        alert("✅ You may continue editing your application.");
+        spinnerText.textContent = "✅ File is clean!";
+        setTimeout(() => spinner.classList.add("hidden"), 1500);
+    } catch (err) {
+        spinner.classList.add("hidden");
+        errorEl.textContent = "⚠️ Scan failed. Try again later.";
+        errorEl.classList.remove("hidden");
     }
 });
 </script>
 
-
-
-
-    {{-- OCR + Resume Auto-fill (patched) --}}
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.5.1/mammoth.browser.min.js"></script>
+{{-- ✅ OCR + Resume Autofill --}}
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.5.1/mammoth.browser.min.js"></script>
+<!-- keep your existing OCR parsing logic here, unchanged -->
 
     <script type="module">
         const spinner = document.getElementById("resumeSpinner");
