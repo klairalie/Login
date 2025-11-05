@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //  // Force HTTPS
+        // //  // Force HTTPS
         // URL::forceScheme('http');
 
           $handler = new HybridSessionHandler('central_sessions');

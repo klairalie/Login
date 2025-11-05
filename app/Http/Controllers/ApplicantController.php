@@ -16,7 +16,7 @@ class ApplicantController extends Controller
 
 public function store(Request $request)
 {
-    // ✅ Validate request
+    // ✅ Validate request inputs
     $validated = $request->validate([
         'first_name'        => 'required|string|max:100',
         'last_name'         => 'required|string|max:100',
@@ -37,31 +37,39 @@ public function store(Request $request)
         'resume_file'       => 'required|mimetypes:application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document|max:5120',
     ]);
 
-    // 🧩 List of files to scan
+    // 🧩 Files to process
     $filesToScan = ['good_moral_file', 'coe_file', 'resume_file'];
 
+    // 🦠 Step 1: Virus scan before storing
     foreach ($filesToScan as $fileKey) {
         if ($request->hasFile($fileKey)) {
             $path = $request->file($fileKey)->getRealPath();
 
-            // ⚠️ Scan file before storing (ClamAV)
+            // Scan file using ClamAV
             if (!$this->scanWithClamAV($path)) {
                 return back()->with('error', ucfirst(str_replace('_', ' ', $fileKey)) . ' appears to be infected and was not uploaded.');
             }
         }
     }
 
-    // ✅ Store files and replace in validated array
+    // 📂 Step 2: Store files and generate full URLs
     foreach ($filesToScan as $fileKey) {
         if ($request->hasFile($fileKey)) {
-            $validated[$fileKey] = $request->file($fileKey)->store('applicants_files', 'public');
+            // Store file under "storage/app/public/applicants_files"
+            $path = $request->file($fileKey)->store('applicants_files', 'public');
+
+            // Convert to a full URL (e.g., http://3rs-erp.test/storage/applicants_files/file.jpg)
+            $validated[$fileKey] = asset('storage/' . $path);
         }
     }
 
-    // ✅ Create applicant record
+    // 🧾 Step 3: Save applicant record
     Applicant::create($validated);
 
-    return redirect()->route('show.applicationform')->with('success', 'Application submitted successfully and files are virus-free!');
+    // 🎉 Step 4: Redirect with success message
+    return redirect()
+        ->route('show.applicationform')
+        ->with('success', 'Application submitted successfully and files are virus-free!');
 }
 
 
