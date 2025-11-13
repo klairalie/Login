@@ -23,7 +23,7 @@ Route::get('/register', [LoginRegController::class, 'showRegister'])->name('show
 // ✅ Added throttle (limit 5 login attempts per minute)
 // ✅ Added CSRF protection automatically handled by Laravel
 Route::post('/login', [LoginRegController::class, 'login'])
-    ->middleware('throttle:2,5')
+    ->middleware('throttle:5,3')
     ->name('login');
 
 Route::post('/register', [LoginRegController::class, 'register'])->name('register');
@@ -35,6 +35,10 @@ Route::controller(CodeEmailVerifyController::class)->group(function() {
     Route::post('/verify_code', 'submitCode')->name('verify.submit');
     Route::post('/resend_code', 'resendCode')->name('verify.resend');
 });
+
+Route::get('/process', function () {
+    return view('process.contact');
+})->name('contact');
 
 
 // ---------------- APPLICANT CONTROLLER ---------------- //
@@ -72,7 +76,7 @@ Route::get('/test-session-driver', function () {
 
 // ---------------- FORGOT PASSWORD FLOW ---------------- //
 Route::post('/forgot-password', [LoginRegController::class, 'sendResetOTP'])
-    ->middleware('throttle:1,3') // limit to 1 request per 3 minutes
+    ->middleware('throttle:2,3') // limit to 1 request per 3 minutes
     ->name('forgot.password');
 
 Route::post('/forgot-verify', [LoginRegController::class, 'resetPassword'])

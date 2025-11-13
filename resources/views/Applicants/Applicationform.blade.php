@@ -103,9 +103,9 @@
                                     <option value="Helper" {{ old('position')=='Helper' ? 'selected' : '' }}>Helper</option>
                                     <option value="Assistant Technician" {{ old('position')=='Assistant Technician' ? 'selected' : '' }}>Assistant Technician</option>
                                     <option value="Technician" {{ old('position')=='Technician' ? 'selected' : '' }}>Technician</option>
-                                    <option value="Human Resource Manager" {{ old('position')=='Human Resource Manager' ? 'selected' : '' }}>Human Resource Manager</option>
+                                    {{-- <option value="Human Resource Manager" {{ old('position')=='Human Resource Manager' ? 'selected' : '' }}>Human Resource Manager</option>
                                     <option value="Administrative Manager" {{ old('position')=='Administrative Manager' ? 'selected' : '' }}>Administrative Manager</option>
-                                    <option value="Finance Manager" {{ old('position')=='Finance Manager' ? 'selected' : '' }}>Finance Manager</option>
+                                    <option value="Finance Manager" {{ old('position')=='Finance Manager' ? 'selected' : '' }}>Finance Manager</option> --}}
                                 </select>
                             </div>
                         </div>

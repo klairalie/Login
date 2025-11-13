@@ -42,41 +42,33 @@
 
   <!-- Summary Line -->
   <div class="flex justify-between items-center text-sm text-gray-600 mb-6">
-    <p><span class="font-medium">{{ count($aircons) }}</span> units available</p>
+    <p><span class="font-medium">{{ $aircons->count() }}</span> units available</p>
     <p class="italic">Last updated: {{ now()->format('F d, Y') }}</p>
   </div>
 
   <!-- Grid -->
   <div id="airconGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
     @forelse($aircons as $unit)
-      <article class="bg-white rounded-2xl p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 group animate-fadeIn">
+      <article class="unit-card bg-white rounded-2xl p-5 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-gray-100 group animate-fadeIn"
+               data-unit='@json($unit)'>
         <div class="relative h-48 flex items-center justify-center bg-gray-50 rounded-xl overflow-hidden">
-         <img src="{{ asset($unit->image_path) }}" alt="Aircon Image"
-     class="h-44 w-auto object-contain transition-transform duration-300 group-hover:scale-105 rounded-lg shadow">
-
+          <img src="{{ $unit->image_path ?? '/images/aircon-placeholder.png' }}" alt="Aircon Image"
+               class="h-44 w-auto object-contain transition-transform duration-300 group-hover:scale-105 rounded-lg shadow">
           <div class="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition"></div>
         </div>
 
         <div class="mt-5">
-          <h2 class="text-lgs font-semibold text-gray-800 truncate"> {{ $unit->name }}
-          </h2>
+          <h2 class="text-lgs font-semibold text-gray-800 truncate"> {{ $unit->name }}</h2>
           <h3 class="text-xs font-semibold text-gray-800 truncate mt-3">
-
             {{ $unit->brand }} {{ $unit->model }}
           </h3>
-          {{-- <p class="text-sm text-gray-500">{{ $unit->category ?? 'Split' }} • {{ $unit->capacity ?? '—' }} BTU</p>
-
-          <p class="text-sm text-gray-600 mt-3 line-clamp-3 leading-relaxed">
-            {{ Str::limit($unit->description ?? 'Energy efficient and durable air-conditioning unit.', 100) }}
-          </p> --}}
 
           <div class="mt-5 flex justify-between items-center">
             <span class="text-lg font-bold text-purple-700">
               {{ $unit->base_price ? '₱' . number_format($unit->base_price) : 'Price on request' }}
             </span>
             <button type="button"
-                    class="js-quickview text-sm text-purple-600 font-medium hover:underline transition"
-                    data-unit='@json($unit)'>
+                    class="js-quickview text-sm text-purple-600 font-medium hover:underline transition">
               View Details →
             </button>
           </div>
@@ -98,7 +90,7 @@
 
     <div class="p-10 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="col-span-1 flex justify-center items-center rounded-xl p-4">
-        <img id="modalImage" src="{{ $unit->image_path }}" alt="Aircon Image" class="h-60 object-contain">
+        <img id="modalImage" src="" alt="Aircon Image" class="h-60 object-contain">
       </div>
 
       <div class="md:col-span-2">
@@ -112,7 +104,6 @@
                   class="flex-1 px-2 py-2 bg-purple-600 text-white text-sm font-semibold hover:bg-purple-700 transition text-center">
              Request Quote
           </button>
-         
         </div>
       </div>
     </div>
@@ -127,9 +118,10 @@
       <button id="quoteClose" aria-label="Close modal" class="text-gray-400 hover:text-gray-800 text-2xl font-bold leading-none">×</button>
     </div>
 
-    <form id="quoteForm" method="POST" action="{{ route('booking.storeRequest') }} " class="p-6 space-y-4">
+    <form id="quoteForm" method="POST" action="{{ route('booking.storeRequest') }}" class="p-6 space-y-4">
       @csrf
       <input type="hidden" id="quoteProductId" name="product_id" />
+      <input type="hidden" id="service_product_price_input" name="service_product_price" />
 
       <!-- Customer Info -->
       <div class="rounded-md border">
@@ -143,19 +135,16 @@
             <input type="text" id="full_name" name="full_name" required
                    class="mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" />
           </div>
-
           <div>
             <label for="business_name" class="block text-sm font-medium text-gray-700">Business Name</label>
             <input type="text" id="business_name" name="business_name"
                    class="mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" />
           </div>
-
           <div>
             <label for="contact_info" class="block text-sm font-medium text-gray-700">Contact Info</label>
             <input type="text" id="contact_info" name="contact_info" placeholder="Phone number"
                    class="mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none" />
           </div>
-
           <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <input type="email" id="email" name="email"
@@ -175,14 +164,12 @@
         <div id="addAddressesContainer" class="p-4 space-y-4"></div>
       </div>
 
-      <!-- Service Information (Added Section) -->
+      <!-- Service Info -->
       <div class="rounded-md border mt-4">
         <div class="px-4 py-3 border-b bg-gray-50">
           <h6 class="font-medium text-gray-700"><i class="fas fa-cogs mr-2"></i>Service Information</h6>
         </div>
-
         <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Type of Service -->
           <div class="col-span-2">
             <label for="service_type" class="block text-sm font-medium text-gray-700">Type of Service *</label>
             <select id="service_type" name="service_type" required
@@ -194,7 +181,6 @@
             </select>
           </div>
 
-          <!-- Product Info -->
           <div class="col-span-2 bg-gray-50 rounded-lg p-4 border mt-2">
             <h6 class="font-medium text-gray-700 mb-2"><i class="fas fa-box mr-2"></i>Product Details</h6>
             <p class="text-sm text-gray-700"><span class="font-semibold">Name:</span> <span id="service_product_name">—</span></p>
@@ -203,11 +189,7 @@
             <p class="text-sm text-gray-700"><span class="font-semibold">Description:</span> <span id="service_product_description">—</span></p>
           </div>
 
-          <!-- Number of Units -->
           <div class="col-span-2">
-            <input type="hidden" id="quoteProductId" name="product_id" />
-            <input type="hidden" id="service_product_price_input" name="service_product_price" />
-
             <label for="unit_quantity" class="block text-sm font-medium text-gray-700 mt-2">How many units? *</label>
             <input type="number" id="unit_quantity" name="unit_quantity" min="1" required
                    class="mt-1 block w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:outline-none"
@@ -233,14 +215,11 @@
         <label class="inline-flex items-center text-sm text-gray-600">
           <input type="checkbox" class="add-address-default mr-2" name="add_address_default[]"> Default
         </label>
-        <button type="button" 
-        class="remove-add-address inline-flex items-center justify-center w-8 h-8 rounded-md bg-black text-white hover:bg-gray-500">
-  <i data-lucide="trash-2" class="w-4 h-4"></i>
-</button>
-
+        <button type="button" class="remove-add-address inline-flex items-center justify-center w-8 h-8 rounded-md bg-black text-white hover:bg-gray-500">
+          <i data-lucide="trash-2" class="w-4 h-4"></i>
+        </button>
       </div>
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
       <div>
         <label class="block text-sm text-gray-700">Label</label>
@@ -251,7 +230,6 @@
         <input type="text" class="add-address-barangay mt-1 block w-full rounded-md border px-3 py-2 text-sm" name="add_address_barangay[]" placeholder="Barangay">
       </div>
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
       <div class="md:col-span-2">
         <label class="block text-sm text-gray-700">Street</label>
@@ -262,7 +240,6 @@
         <input type="text" class="add-address-zip mt-1 block w-full rounded-md border px-3 py-2 text-sm" name="add_address_zip[]" placeholder="ZIP">
       </div>
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
       <div>
         <label class="block text-sm text-gray-700">City</label>
@@ -296,75 +273,67 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => content.classList.remove('opacity-0', 'scale-95'), 10);
   };
 
-  const hideModal = (modal, content) => {
+  const closeModal = (modal, content) => {
     content.classList.add('opacity-0', 'scale-95');
-    setTimeout(() => modal.classList.add('hidden'), 200);
+    setTimeout(() => modal.classList.add('hidden'), 150);
   };
 
-  // === Open Quick View ===
-  document.querySelectorAll('.js-quickview').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const unit = JSON.parse(btn.dataset.unit);
+  document.querySelectorAll('.unit-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const unit = JSON.parse(card.dataset.unit);
+      if (!unit) return;
 
-      document.getElementById('modalTitle').textContent = `${unit.brand} ${unit.model}`;
-      document.getElementById('modalImage').src = unit.image_path
-  ? unit.image_path
-  : '/images/aircon-placeholder.png';
-
-      document.getElementById('modalCategory').textContent = `${unit.category ?? ''} • ${unit.capacity ?? ''} BTU`;
-      document.getElementById('modalPrice').textContent = unit.base_price ? `₱${Number(unit.base_price).toLocaleString()}` : 'Price on request';
-      document.getElementById('modalDescription').textContent = unit.description ?? '—';
-
-      // Fill product info for quote form
-      serviceName.textContent = unit.name ?? `${unit.brand} ${unit.model}`;
-      serviceBrand.textContent = unit.brand ?? '—';
-      servicePrice.textContent = unit.base_price ? `₱${Number(unit.base_price).toLocaleString()}` : '—';
-      serviceDesc.textContent = unit.description ?? '—';
-
-      // Fill hidden inputs
-      productIdInput.value = unit.aircon_type_id;
-      priceInput.value = unit.base_price ?? 0;
-
+      document.getElementById('modalTitle').textContent = unit.name || "N/A";
+      document.getElementById('modalImage').src = unit.image_path || '/images/aircon-placeholder.png';
+      document.getElementById('modalCategory').textContent = unit.category || '';
+      document.getElementById('modalPrice').textContent = unit.base_price ? `₱${parseFloat(unit.base_price).toLocaleString()}` : 'Price on request';
+      document.getElementById('modalDescription').textContent = unit.description || '';
+      
       showModal(unitModal, unitContent);
+
+      // populate quote modal hidden fields
+      serviceName.textContent = unit.name;
+      serviceBrand.textContent = unit.brand;
+      servicePrice.textContent = unit.base_price ? `₱${parseFloat(unit.base_price).toLocaleString()}` : 'Price on request';
+      serviceDesc.textContent = unit.description || '';
+      priceInput.value = unit.base_price || 0;
+      productIdInput.value = unit.id || '';
     });
   });
 
-  document.getElementById('modalClose').addEventListener('click', () => hideModal(unitModal, unitContent));
+  document.getElementById('modalClose').addEventListener('click', () => closeModal(unitModal, unitContent));
+  document.getElementById('quoteClose').addEventListener('click', () => closeModal(quoteModal, quoteContent));
+  document.getElementById('quoteCancel').addEventListener('click', () => closeModal(quoteModal, quoteContent));
   document.getElementById('openQuoteForm').addEventListener('click', () => {
-    hideModal(unitModal, unitContent);
-    setTimeout(() => showModal(quoteModal, quoteContent), 300);
+    closeModal(unitModal, unitContent);
+    showModal(quoteModal, quoteContent);
   });
-  document.getElementById('quoteClose').addEventListener('click', () => hideModal(quoteModal, quoteContent));
-  document.getElementById('quoteCancel').addEventListener('click', () => hideModal(quoteModal, quoteContent));
 
-  // === Add Address Logic ===
-  const addAddressBtn = document.getElementById('addAddressBtnModal');
-  const addressContainer = document.getElementById('addAddressesContainer');
-  const addressTemplate = document.getElementById('addAddressTemplate').innerHTML;
+  // === Address dynamic logic
+  const addAddressesContainer = document.getElementById('addAddressesContainer');
+  const addAddressBtnModal = document.getElementById('addAddressBtnModal');
+  const addAddressTemplate = document.getElementById('addAddressTemplate').innerHTML;
 
-  addAddressBtn.addEventListener('click', () => {
-    addressContainer.insertAdjacentHTML('beforeend', addressTemplate);
+  let addressCount = 0;
+  const updateAddressNumbers = () => {
+    addAddressesContainer.querySelectorAll('.add-address-number').forEach((el, idx) => el.textContent = idx + 1);
+  };
+
+  addAddressBtnModal.addEventListener('click', () => {
+    const div = document.createElement('div');
+    div.innerHTML = addAddressTemplate;
+    addAddressesContainer.appendChild(div.firstElementChild);
+    addressCount++;
     updateAddressNumbers();
   });
 
-  addressContainer.addEventListener('click', e => {
+  addAddressesContainer.addEventListener('click', (e) => {
     if (e.target.closest('.remove-add-address')) {
       e.target.closest('.add-address-item').remove();
       updateAddressNumbers();
     }
   });
-
-  const updateAddressNumbers = () => {
-    document.querySelectorAll('.add-address-number').forEach((el, idx) => el.textContent = idx + 1);
-  };
-
-  // ✅ Remove e.preventDefault to allow actual form submission
 });
-</script>
-
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-  lucide.createIcons();
 </script>
 
 </x-nav-layout>

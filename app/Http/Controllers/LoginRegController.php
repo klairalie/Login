@@ -91,7 +91,7 @@ class LoginRegController extends Controller
 
             return back()->with([
                 'otp_phase' => true,
-                'status' => 'An OTP has been sent to your email. Please enter it below to continue.',
+                'status' => 'An OTP has been sent to your email. Please enter it to OTP input field to continue.',
             ]);
         }
 
