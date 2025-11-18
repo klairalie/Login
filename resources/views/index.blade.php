@@ -30,11 +30,11 @@
             <x-lucide-phone class="w-5 h-5" />
             Contact Us
           </a>
-          <button @click="openModal = true"
+          {{-- <button @click="openModal = true"
              class="px-6 py-3 bg-gray-100 text-sky-800 font-semibold rounded-full shadow hover:bg-gray-200 transition flex items-center justify-center gap-2">
             <x-lucide-user-plus class="w-5 h-5" />
             Join Our Team
-          </button>
+          </button> --}}
         </div>
       </div>
     </div>
@@ -73,14 +73,78 @@
       @endforeach
     </div>
 
+
+ <!-- ANNOUNCEMENTS SECTION -->
+<section class="relative py-20 bg-gradient-to-b from-white via-sky-50/40 to-white w-screen overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 -z-10">
+        <div class="absolute -top-16 -left-16 w-72 h-72 bg-sky-200/40 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -right-16 w-80 h-80 bg-emerald-200/40 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6">
+        
+        <!-- Header -->
+        <div class="text-center mb-14">
+            <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-sky-900">
+                Latest Announcements
+            </h2>
+            <div class="w-24 h-1 bg-gradient-to-r from-sky-600 to-emerald-600 mx-auto mt-3 rounded-full"></div>
+        </div>
+
+        @php
+            $announcements = \App\Models\Announcement::latest()->take(1)->get();
+        @endphp
+
+        <!-- Announcement Card -->
+        <div class="grid grid-cols-1 justify-items-center">
+            @foreach ($announcements as $announcement)
+                <div class="relative max-w-2xl w-full bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg ring-1 ring-gray-200/60 
+                            hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-sky-500 to-emerald-500 rounded-t-2xl"></div>
+
+                    <!-- Date -->
+                    <p class="text-xs uppercase tracking-wide text-sky-700/90 mb-3">
+                        {{ $announcement->created_at->format('F d, Y') }}
+                    </p>
+
+                    <!-- Title -->
+                    <h3 class="text-2xl font-bold text-gray-900 leading-snug mb-3">
+                        {{ $announcement->title }}
+                    </h3>
+
+                    <!-- Content -->
+                    <p class="text-gray-700/90 text-base leading-relaxed mb-6">
+                        {{ Str::limit($announcement->content, 200) }}
+                    </p>
+
+                    <!-- Button -->
+                    @if ($announcement->is_active == 1 || strtolower($announcement->is_active) === 'active')
+                        <a href="{{ route('show.applicationform') }}"
+                           class="block w-full py-3 text-center bg-gradient-to-r from-sky-600 to-emerald-600 
+                                  text-white font-semibold rounded-xl shadow
+                                  hover:from-sky-700 hover:to-emerald-700 transition">
+                            Apply Now
+                        </a>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+
+    </div>
+</section>
+
+
+
     <!-- SERVICES SECTION -->
     <section class="py-16 bg-gray-50 w-full">
       <div class="max-w-7xl mx-auto px-6">
-        <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Our Specialized Services</h2>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-sky-900 text-center">Our Specialized Services</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-sky-600 to-emerald-600 mx-auto mt-3 mb-8 rounded-full"></div>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+          <div class="group bg-white rounded-2xl shadow-md overflow-hidden ring-1 ring-gray-200/60 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
            <img src="{{ asset('storage/Ac installation.webp') }}" 
-     alt="AC Installation" class="w-full h-64 object-cover">
+     alt="AC Installation" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105">
 
 
             <div class="p-6 text-center">
@@ -88,17 +152,17 @@
               <p class="text-gray-600 text-base">Professional setup of air-conditioning units for homes and offices, ensuring optimal performance and energy efficiency.</p>
             </div>
           </div>
-          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+          <div class="group bg-white rounded-2xl shadow-md overflow-hidden ring-1 ring-gray-200/60 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
        <img src="{{ asset('storage/Ac_cleaning.jpg') }}" 
-     alt="AC Installation" class="w-full h-64 object-cover">
+     alt="AC Installation" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105">
             <div class="p-6 text-center">
               <h3 class="text-xl font-semibold text-gray-800 mb-2">AC Cleaning & Maintenance</h3>
               <p class="text-gray-600 text-base">Thorough cleaning services to improve airflow, hygiene, and lifespan of your AC units.</p>
             </div>
           </div>
-          <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+          <div class="group bg-white rounded-2xl shadow-md overflow-hidden ring-1 ring-gray-200/60 hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
            <img src="{{ asset('storage/AC-repair.webp') }}" 
-     alt="AC Installation" class="w-full h-64 object-cover">
+     alt="AC Installation" class="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105">
 
             <div class="p-6 text-center">
               <h3 class="text-xl font-semibold text-gray-800 mb-2">AC Repair</h3>
@@ -112,31 +176,40 @@
     <!-- GALLERY SECTION -->
     <section class="py-16 w-full">
       <div class="max-w-7xl mx-auto px-6">
-        <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Our Work Gallery</h2>
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-sky-900 text-center">Our Work Gallery</h2>
+        <div class="w-24 h-1 bg-gradient-to-r from-sky-600 to-emerald-600 mx-auto mt-3 mb-8 rounded-full"></div>
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          <div class="group relative overflow-hidden rounded-lg">
-            <img src="{{ asset('storage/progress.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+            <img src="{{ asset('storage/progress.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-            <img src="{{ asset('storage/gallery.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+            <img src="{{ asset('storage/gallery.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-             <img src="{{ asset('storage/hays.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+             <img src="{{ asset('storage/hays.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-             <img src="{{ asset('storage/much.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+             <img src="{{ asset('storage/much.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-             <img src="{{ asset('storage/pro.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+             <img src="{{ asset('storage/pro.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-             <img src="{{ asset('storage/rep.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+             <img src="{{ asset('storage/rep.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-             <img src="{{ asset('storage/team.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+             <img src="{{ asset('storage/team.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
-          <div class="group relative overflow-hidden rounded-lg">
-             <img src="{{ asset('storage/work.jpg') }}" class="w-full h-64 object-cover transition-transform transform group-hover:scale-105">
+          <div class="group relative overflow-hidden rounded-xl shadow-md hover:shadow-lg transition">
+             <img src="{{ asset('storage/work.jpg') }}" class="w-full h-64 object-cover transition-transform duration-500 transform group-hover:scale-105">
+             <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </div>
         </div>
       </div>
@@ -249,25 +322,7 @@
 
         </div>
     </section>
-
-    <!-- ANNOUNCEMENTS / QUICK LINKS -->
-    {{-- <section class="py-16 bg-white w-full">
-      <div class="max-w-7xl mx-auto px-6">
-        <h2 class="text-3xl font-bold text-gray-800 mb-10 text-center">Announcements</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {{-- @php
-            $announcements = \App\Models\Announcement::latest()->take(6)->get();
-          @endphp
-          @foreach ($announcements as $announcement)
-            <div class="bg-gray-50 p-6 rounded-2xl shadow hover:shadow-lg transition">
-              <h3 class="text-lg font-semibold text-sky-800 mb-2">{{ $announcement->title }}</h3>
-              <p class="text-gray-600 text-sm">{{ Str::limit($announcement->content, 120) }}</p>
-              <p class="mt-2 text-gray-400 text-xs">{{ $announcement->created_at->format('F d, Y') }}</p>
-            </div>
-          @endforeach --}}
-        </div>
-      </div>
-    </section> 
+ 
 
     <!-- FOOTER -->
     <footer class="bg-sky-900 text-white py-12">

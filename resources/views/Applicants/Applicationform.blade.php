@@ -35,7 +35,7 @@
                 <h1 class="text-xl sm:text-2xl font-bold text-sky-900 mb-3">Upload Your Resume</h1>
                 <p class="text-gray-700 text-sm sm:text-base leading-relaxed">
                     Please upload your <span class="font-semibold text-sky-700">resume file (.doc, .docx)</span> 
-                    so our system can scan and process it correctly. Make sure your resume is updated before submitting. Thank You!
+                    so our system can scan and process it correctly. Make sure to review your resume before submitting. Thank You!
                 </p>
             </div>
         </div>
@@ -146,9 +146,26 @@
                         </div>
                     </div>
 
+                    <!-- Terms & Policy -->
+                    <div class="mt-6 space-y-4">
+                        <div class="flex items-start gap-3">
+                            <input id="terms_accepted" type="checkbox" name="terms_accepted" class="mt-1" required disabled>
+                            <label for="terms_accepted" class="text-sm text-gray-700">
+                                I have read and understood the Terms & Conditions.
+                                <button type="button" id="openTermsModal" class="ml-2 text-sky-700 underline hover:text-sky-900">Read</button>
+                            </label>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <input id="policy_accepted" type="checkbox" name="policy_accepted" class="mt-1" required>
+                            <label for="policy_accepted" class="text-sm text-gray-700">
+                                I agree to the Business Policy.
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Submit -->
                     <div class="flex justify-end">
-                        <button type="submit" class="submit-btn">Submit Application</button>
+                        <button id="submitBtn" type="submit" class="submit-btn" disabled>Submit Application</button>
                     </div>
                 </form>
             </div>
@@ -173,6 +190,22 @@
       </button>
   </div>
 </div>
+
+<div id="termsModal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6">
+    <h2 class="text-xl font-bold text-sky-900 mb-4">Terms & Conditions and Business Policy</h2>
+    <div id="termsScroll" class="text-gray-700 space-y-4 max-h-[60vh] overflow-y-auto pr-2">
+      <p>By submitting this application, you acknowledge that 3RS Air-Conditioning Solution is a small business with fewer than 10 employees and may be exempt from providing mandatory government benefits such as SSS, PhilHealth, or Pag-IBIG contributions, in accordance with applicable regulations.</p>
+      <p>You confirm that the information provided is accurate and consent to its use for recruitment and evaluation. Any misrepresentation may lead to disqualification or termination of the hiring process.</p>
+      <p>Uploaded files must be your own and free from malicious content. We may retain application data for a reasonable period for record-keeping and future opportunities. You may request deletion via our official email.</p>
+      <p>By continuing, you confirm that you have read and accept these Terms & Conditions and Business Policy.</p>
+    </div>
+    <div class="mt-6 flex items-center justify-between">
+      <button type="button" id="closeTerms" class="px-4 py-2 rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300">Close</button>
+      <button type="button" id="acceptTermsBtn" class="px-5 py-2 rounded-md bg-sky-600 text-white hover:bg-sky-700 disabled:opacity-50" disabled>Accept & Close</button>
+    </div>
+  </div>
+  </div>
 
 {{-- ✅ Real-time Validation --}}
 <script>
@@ -504,6 +537,52 @@ document.getElementById("resumeFile").addEventListener("change", async function 
             return result;
         }
     </script>
+    <script>
+    (function(){
+      const openBtn = document.getElementById('openTermsModal');
+      const modal = document.getElementById('termsModal');
+      const closeBtn = document.getElementById('closeTerms');
+      const acceptBtn = document.getElementById('acceptTermsBtn');
+      const scrollArea = document.getElementById('termsScroll');
+      const termsCb = document.getElementById('terms_accepted');
+      const policyCb = document.getElementById('policy_accepted');
+      const submitBtn = document.getElementById('submitBtn');
+
+      function updateSubmit(){
+        const ok = termsCb && !termsCb.disabled && termsCb.checked && policyCb && policyCb.checked;
+        if (submitBtn) submitBtn.disabled = !ok;
+      }
+
+      if (openBtn) openBtn.addEventListener('click', () => {
+        if (modal) modal.classList.remove('hidden');
+        if (acceptBtn) acceptBtn.disabled = true;
+        if (scrollArea) {
+          scrollArea.scrollTop = 0;
+          const scrollable = scrollArea.scrollHeight - scrollArea.clientHeight > 2;
+          if (!scrollable) acceptBtn.disabled = false;
+        } else {
+          if (acceptBtn) acceptBtn.disabled = false;
+        }
+      });
+
+      if (closeBtn) closeBtn.addEventListener('click', () => {
+        if (modal) modal.classList.add('hidden');
+      });
+
+      if (scrollArea) scrollArea.addEventListener('scroll', () => {
+        const atBottom = scrollArea.scrollTop + scrollArea.clientHeight >= scrollArea.scrollHeight - 8;
+        if (atBottom && acceptBtn) acceptBtn.disabled = false;
+      });
+
+      if (acceptBtn) acceptBtn.addEventListener('click', () => {
+        if (termsCb) { termsCb.disabled = false; termsCb.checked = true; }
+        if (modal) modal.classList.add('hidden');
+        updateSubmit();
+      });
+
+      if (policyCb) policyCb.addEventListener('change', updateSubmit);
+      if (termsCb) termsCb.addEventListener('change', updateSubmit);
+      updateSubmit();
+    })();
+    </script>
 </x-nav-layout>
-
-
